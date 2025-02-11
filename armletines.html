@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #c79292;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .heart {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: none;
+            animation: rain 4s linear;
+            background-image: url('img/arm.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            top: -80px; /* Start above the viewport */
+            opacity: 0.7;
+            filter: grayscale(50%);
+        }
+
+        .heart::before,
+        .heart::after {
+            display: none;
+        }
+
+        @keyframes rain {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(calc(100vh + 80px)); /* Added extra 80px to account for image height */
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #7e7a7a;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+
+        .yes-btn {
+            background: #b15a5a;
+            color: white;
+        }
+
+        .no-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="valentineText">Will you be my valentine? :></h1>
+        <div class="buttons">
+            <button class="yes-btn" onclick="accept()">Yes!</button>
+            <button class="no-btn" onclick="moveButton(this)">No</button>
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            'img/arm.png',
+            'img/arm2.png',
+            'img/arm3.png',
+        ];
+
+        let usedColumns = new Set();
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            
+            // Calculate available columns
+            const columnWidth = 100;
+            const numColumns = Math.floor(window.innerWidth / columnWidth);
+            
+            // Find an unused column
+            let column;
+            do {
+                column = Math.floor(Math.random() * numColumns);
+            } while (usedColumns.has(column));
+            
+            usedColumns.add(column);
+            
+            const xPosition = (column * columnWidth) + (columnWidth - 80) / 2;
+            heart.style.left = xPosition + 'px';
+            
+            heart.style.animationDuration = '4s';
+            
+            const randomImage = images[Math.floor(Math.random() * images.length)];
+            heart.style.backgroundImage = `url('${randomImage}')`;
+            
+            document.body.appendChild(heart);
+            
+            heart.addEventListener('animationend', () => {
+                usedColumns.delete(column);
+                heart.remove();
+            });
+        }
+
+        // Create multiple arms at once
+        setInterval(() => {
+            const columnWidth = 100;
+            const numColumns = Math.floor(window.innerWidth / columnWidth);
+            const armsToCreate = 3; // Number of arms to create each time
+            
+            // Clear any existing arms that might be stuck
+            if (usedColumns.size >= numColumns) {
+                usedColumns.clear();
+            }
+            
+            // Create all arms at once
+            for (let i = 0; i < armsToCreate; i++) {
+                setTimeout(() => {
+                    createHeart();
+                }, i * 400); // Spread out the creation of each arm by 400ms
+            }
+        }, 1200); // Main interval for the group
+
+        function accept() {
+            Swal.fire({
+                title: 'Dapat Lang >:(',
+                text: 'HAPPY VALENTINE\'S DAY!',
+                imageUrl: 'https://media1.tenor.com/m/fDnfCf1vYr0AAAAd/angry-angry-cat.gif', // You can use any image/gif URL
+                imageWidth: 200,
+                imageHeight: 200,
+                confirmButtonText: 'Continue',
+                background: '#fff',
+                customClass: {
+                    popup: 'animated heartbeat'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "https://www.youtube.com/watch?v=0CdMqJ9Lidg";
+                }
+            });
+        }
+
+        function moveButton(btn) {
+            const messages = [
+                "I thought you loved me :(",
+                "Sige kami nalang ni minty :(",
+                "Try again",
+                "Give it another thought!",
+                "Don't be like that!",
+                "SUBUKAN MONG MAG NO ULIT",
+                "Baka mali lang pindot mo hahaha...",
+            ];
+            
+            // Change the text
+            const text = document.getElementById('valentineText');
+            text.textContent = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Get current opacity or set initial
+            let opacity = parseFloat(btn.style.opacity) || 1.0;
+            // Reduce opacity
+            opacity -= 0.2;
+            btn.style.opacity = opacity;
+
+            // If opacity reaches 0, remove the button
+            if (opacity <= 0) {
+                btn.remove();
+                return;
+            }
+            
+            // Move the button
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            btn.style.position = 'absolute';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+
+        // Add event listeners for visibility change
+        document.addEventListener("visibilitychange", function() {
+            const hearts = document.querySelectorAll('.heart');
+            if (document.hidden) {
+                // Pause all animations when tab is not visible
+                hearts.forEach(heart => {
+                    heart.style.animationPlayState = 'paused';
+                });
+            } else {
+                // Resume animations when tab becomes visible again
+                hearts.forEach(heart => {
+                    heart.style.animationPlayState = 'running';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
